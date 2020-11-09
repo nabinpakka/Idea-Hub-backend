@@ -6,6 +6,7 @@ import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.service.FileStorageService;
 import com.example.IdeaHub.data.service.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +52,7 @@ public class PublicationController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (IOException e) {
             e.printStackTrace();
-            message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+            message = "Could not upload the file: " ;
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
         }
     }
@@ -60,6 +61,16 @@ public class PublicationController {
     public Optional<Publication> getPublication(@PathVariable String id){
         return publicationService.getPublication(id);
 
+    }
+
+    //getting file by id
+    @GetMapping("/fileDownload/{id}")
+    public ResponseEntity<byte[]> getFile(@PathVariable String id){
+        FileDB fileDB = fileStorageService.getFile(id);
+        System.out.println(fileDB);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
+                .body(fileDB.getData());
     }
 
 }

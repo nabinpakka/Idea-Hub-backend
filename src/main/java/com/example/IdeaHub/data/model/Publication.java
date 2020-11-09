@@ -8,13 +8,7 @@ import javax.persistence.*;
 public class Publication {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
     @Column(unique = true)
-    private String uuid;
-
-    //this should be list of ids
-    @Column
     private String authorId;
 
     @Column(name ="title",columnDefinition = "VARCHAR(128)")
@@ -58,14 +52,6 @@ public class Publication {
 
     public Publication() {
 
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     public String getAuthorId() {
@@ -122,5 +108,16 @@ public class Publication {
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
+    }
+
+    @Override
+    public String toString() {
+        return "Publication{" +
+                "title='" + title + '\'' +
+                ", abs='" + abs + '\'' +
+                ", detail='" + detail + '\'' +
+                ", reviewScore=" + reviewScore +
+                ", publishHouse='" + publishHouse + '\'' +
+                '}';
     }
 }
