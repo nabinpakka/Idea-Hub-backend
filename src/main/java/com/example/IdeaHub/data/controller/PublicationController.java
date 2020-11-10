@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/publication")
@@ -33,7 +33,7 @@ public class PublicationController {
                                                       @RequestParam("reviewScore") Integer reviewScore,
                                                       @RequestParam("detail") String detail,
                                                       @RequestParam("publicationHouse") String publicationHouse,
-                                                      @RequestParam("authorId") String authorId){
+                                                      @RequestParam("authorId") List<String> authorId){
         String message = "";
         try{
             FileDB fileDB = fileStorageService.store(file);
@@ -42,7 +42,7 @@ public class PublicationController {
 
             //creating new publication object
             Publication publication = new Publication(
-                    authorId,title,abs,detail,reviewScore,publicationHouse,fileId
+                    authorId,title,abs,detail,reviewScore,publicationHouse,fileId,false
             );
             //saving publication
             publicationService.upload(publication);
@@ -57,20 +57,41 @@ public class PublicationController {
         }
     }
 
+
+    //the id should not contain ; as it cause error while executing sql command
+
+    //getting all the publications to be reviewed for this publicationHouse
+    @GetMapping("/publicationToReview/{id}")
+    public ResponseEntity<List<Publication>> getPublicationToReview(@PathVariable String id){
+
+            return Optional
+                    .ofNullable( publicationService.getPublicationToReview(id) )
+                    .map( publications -> ResponseEntity.ok().body(publications) )          //200 OK
+                    .orElseGet( () -> ResponseEntity.notFound().build() );
+
+    }
+
+
     @GetMapping("{id}")
     public Optional<Publication> getPublication(@PathVariable String id){
         return publicationService.getPublication(id);
 
     }
 
-    //getting file by id
-    @GetMapping("/fileDownload/{id}")
-    public ResponseEntity<byte[]> getFile(@PathVariable String id){
-        FileDB fileDB = fileStorageService.getFile(id);
-        System.out.println(fileDB);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
-                .body(fileDB.getData());
+    //updating review score
+    @PostMapping("/updateReview/{id}")
+    public ResponseEntity<ResponseMessage> updateReview(@PathVariable String id, @RequestParam("reviewScore") Integer reviewScore){
+        String message="";
+        int status =publicationService.updateReviewScore(id,reviewScore);
+
+        if (status == 1){
+            message = "Uploaded Successfully";
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+        }
+        else{
+            message = "Could not find publication with id: "+ id ;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+        }
     }
 
 }

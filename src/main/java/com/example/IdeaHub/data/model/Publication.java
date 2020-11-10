@@ -3,15 +3,20 @@ package com.example.IdeaHub.data.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.*;
 
 @Entity
 public class Publication {
 
     @Id
-    @Column(unique = true)
-    private String authorId;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name="uuid",strategy = "uuid2")
+    private String uuid;
 
-    @Column(name ="title",columnDefinition = "VARCHAR(128)")
+    @ElementCollection
+    private List<String> authorId= new ArrayList<>();
+
+    @Column(name ="title",columnDefinition = "VARCHAR(128)",unique = true)
     private String title;
 
     //abstract is keywords hence abs
@@ -28,25 +33,32 @@ public class Publication {
     private Integer reviewScore;
 
     @Column(name = "publicationHouse",columnDefinition = "VARCHAR(128)")
-    private String publishHouse;
+    private String publicationHouse;
 
     @Column(name = "fileId")
     private String fileId;
 
-    public Publication(String authorId,
+    //first the variable name was isApproved
+    //this cause error while filtering publication using this boolean
+    @Column(name="approved")
+    private Boolean approved;
+
+    public Publication(List<String> authorId,
                        String title,
                        String abs,
                        String detail,
                        Integer reviewScore,
                        String publishHouse,
-                       String fileId) {
+                       String fileId,
+                       Boolean approved) {
         this.authorId = authorId;
         this.title = title;
         this.abs = abs;
         this.detail = detail;
         this.reviewScore = reviewScore;
-        this.publishHouse = publishHouse;
+        this.publicationHouse = publishHouse;
         this.fileId = fileId;
+        this.approved = approved;
     }
 
 
@@ -54,11 +66,19 @@ public class Publication {
 
     }
 
-    public String getAuthorId() {
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public List<String> getAuthorId() {
         return authorId;
     }
 
-    public void setAuthorId(String authorId) {
+    public void setAuthorId(List<String> authorId) {
         this.authorId = authorId;
     }
 
@@ -95,11 +115,11 @@ public class Publication {
     }
 
     public String getPublishHouse() {
-        return publishHouse;
+        return publicationHouse;
     }
 
     public void setPublishHouse(String publishHouse) {
-        this.publishHouse = publishHouse;
+        this.publicationHouse = publishHouse;
     }
 
     public String getFileId() {
@@ -110,6 +130,14 @@ public class Publication {
         this.fileId = fileId;
     }
 
+    public Boolean getApproved() {
+        return approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        approved = approved;
+    }
+
     @Override
     public String toString() {
         return "Publication{" +
@@ -117,7 +145,8 @@ public class Publication {
                 ", abs='" + abs + '\'' +
                 ", detail='" + detail + '\'' +
                 ", reviewScore=" + reviewScore +
-                ", publishHouse='" + publishHouse + '\'' +
+                ", publishHouse='" + publicationHouse + '\'' +
+                ", isApproved=" + approved +
                 '}';
     }
 }
