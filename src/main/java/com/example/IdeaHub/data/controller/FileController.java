@@ -1,5 +1,6 @@
 package com.example.IdeaHub.data.controller;
 
+import com.example.IdeaHub.data.message.ResponseMessage;
 import com.example.IdeaHub.data.model.FileDB;
 import com.example.IdeaHub.data.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/file")
 public class FileController {
 
-    @Autowired
     private FileStorageService fileStorageService;
 
+    public FileController(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
 
     //getting file by id
     @GetMapping("/{id}")
@@ -27,5 +30,6 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
                 .body(fileDB.getData());
     }
+
 
 }

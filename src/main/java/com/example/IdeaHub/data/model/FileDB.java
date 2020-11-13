@@ -1,8 +1,6 @@
 package com.example.IdeaHub.data.model;
 
 import org.hibernate.annotations.GenericGenerator;
-
-import javax.annotation.processing.Generated;
 import javax.persistence.*;
 
 @Entity
@@ -11,7 +9,7 @@ public class FileDB {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name="uuid",strategy = "uuid2")
-    private String id;
+    private String uuid;
 
     private String name;
 
@@ -22,7 +20,6 @@ public class FileDB {
 
     public FileDB(){
 
-
     }
 
     public FileDB(String name, String type, byte[] data) {
@@ -32,11 +29,11 @@ public class FileDB {
     }
 
     public String getId() {
-        return id;
+        return uuid;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.uuid = id;
     }
 
     public String getName() {
@@ -66,7 +63,7 @@ public class FileDB {
     @Override
     public String toString() {
         return "FileDB{" +
-                "id='" + id + '\'' +
+                "id='" + uuid + '\'' +
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 '}';

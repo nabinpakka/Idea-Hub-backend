@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <publication
+            uuid="1"
+            name="Zaphod Beeblebrox"
+            type="zaphod@galaxy.net"
+            detail = "dakljfakfa"
+
+    />
+</dataset>

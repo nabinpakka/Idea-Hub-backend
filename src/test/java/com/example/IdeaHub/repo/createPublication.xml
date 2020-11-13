@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <publication
+            id="1"
+            title="Zaphod Beeblebrox"
+            abstract="zaphod@galaxy.net"
+            detail = "dakljfakfa"
+            reviewScore="5"
+            publicationHouse="pakka"
+            fileId=" das-da-ad--ad"
+            approved = "true"
+
+    />
+<!--    <file-->
+<!--            uuid="1"-->
+<!--            name="Zaphod Beeblebrox"-->
+<!--            type="zaphod@galaxy.net"-->
+<!--    />-->
+</dataset>
