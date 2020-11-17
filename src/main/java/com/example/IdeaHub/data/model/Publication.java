@@ -54,14 +54,13 @@ public class Publication {
                        @JsonProperty("title") String title,
                        @JsonProperty("abstract") String abs,
                        @JsonProperty("detail") String detail,
-                       @JsonProperty("reviewScore") Integer reviewScore,
                        @JsonProperty("publicationHouse") String publicationHouse,
                        String fileId) {
         this.authorId = authorId;
         this.title = title;
         this.abs = abs;
         this.detail = detail;
-        this.reviewScore = reviewScore;
+        this.reviewScore = 0;
         this.publicationHouse = publicationHouse;
         this.fileId = fileId;
         this.approved = false;

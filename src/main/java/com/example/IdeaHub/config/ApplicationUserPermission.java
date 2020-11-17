@@ -1,4 +1,4 @@
-package com.example.IdeaHub.auth.config;
+package com.example.IdeaHub.config;
 
 public enum ApplicationUserPermission {
     READ_ALL_USERS("all:users"),

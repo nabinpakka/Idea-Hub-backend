@@ -1,6 +1,5 @@
-package com.example.IdeaHub.auth.security;
+package com.example.IdeaHub.config.security;
 
-import com.example.IdeaHub.auth.model.ApplicationUser;
 import com.example.IdeaHub.auth.service.ApplicationUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

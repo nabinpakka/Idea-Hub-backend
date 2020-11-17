@@ -10,5 +10,7 @@ import java.util.*;
 @Repository
 public interface ApplicationUserRepo extends JpaRepository<ApplicationUser, String > {
 
-    public Optional<ApplicationUser> findByUsername(String username);
+    Optional<ApplicationUser> findByUsername(String username);
+
+    List<ApplicationUser> findAllByRole(String role);
 }

@@ -144,6 +144,8 @@ public class PublicationServiceImpl implements PublicationService{
 
     @Override
     public ResponseEntity<List<Publication>> getPublicationsToReviewByAuthor() {
+
+        //get it from filesToReview in applicationTable table
         List<Publication> publications = new ArrayList<>();
         try{
 
@@ -172,7 +174,7 @@ public class PublicationServiceImpl implements PublicationService{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("5 reviewers are mandatory"));
         }
         try{
-            //first get the pulblication with that id
+            //first get the publication with that id
             Optional<Publication> publication = publicationRepo.findById(id);
             if (publication.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage("Publication with id "+ id+" was not found."));
@@ -180,6 +182,12 @@ public class PublicationServiceImpl implements PublicationService{
             }
             Publication publication1 = publication.get();
             publication1.setReviewers(reviewers);
+
+
+//            //adding the publication id to the filesToReview section of author
+//            for(String reviewer:reviewers){
+//                //get the reviewers
+//            }
 
             //now save the publication
             publicationRepo.save(publication1);

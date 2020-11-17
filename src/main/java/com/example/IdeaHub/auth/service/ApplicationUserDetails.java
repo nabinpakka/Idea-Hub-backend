@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-import static com.example.IdeaHub.auth.config.ApplicationUserRole.*;
+import static com.example.IdeaHub.config.ApplicationUserRole.*;
 
 public class ApplicationUserDetails  implements UserDetails {
 

@@ -1,4 +1,4 @@
-package com.example.IdeaHub.auth.security;
+package com.example.IdeaHub.config.security;
 
 import com.example.IdeaHub.auth.service.ApplicationUserDetails;
 import com.example.IdeaHub.auth.service.ApplicationUserDetailsService;

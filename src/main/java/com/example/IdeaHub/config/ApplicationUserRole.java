@@ -1,4 +1,4 @@
-package com.example.IdeaHub.auth.config;
+package com.example.IdeaHub.config;
 
 import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.IdeaHub.auth.config.ApplicationUserPermission.*;
+import static com.example.IdeaHub.config.ApplicationUserPermission.*;
 
 public enum ApplicationUserRole {
     ADMIN(Sets.newHashSet(READ_ALL_PUBLICATION,READ_ALL_USERS)),

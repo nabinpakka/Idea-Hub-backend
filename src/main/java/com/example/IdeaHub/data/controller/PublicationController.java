@@ -34,7 +34,6 @@ public class PublicationController {
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file,
                                                       @RequestParam("title") String title,
                                                       @RequestParam("abstract") String abs,
-                                                      @RequestParam("reviewScore") Integer reviewScore,
                                                       @RequestParam("detail") String detail,
                                                       @RequestParam("publicationHouse") String publicationHouse
                                                       ) {
@@ -43,7 +42,7 @@ public class PublicationController {
 
             String fileId = publicationService.storeFile(file);
             Publication publication = new Publication(
-                    title,abs,detail,reviewScore,publicationHouse,fileId
+                    title,abs,detail,publicationHouse,fileId
             );
 
             //saving publication
