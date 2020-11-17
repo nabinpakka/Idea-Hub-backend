@@ -1,8 +1,8 @@
 package com.example.IdeaHub.data.service;
 
-import com.example.IdeaHub.data.message.ResponseMessage;
-import com.example.IdeaHub.data.model.FileDB;
+import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,16 +11,24 @@ import java.util.*;
 
 public interface PublicationService {
 
-    public ResponseEntity<ResponseMessage> upload(Publication publication);
+    ResponseEntity<ResponseMessage> upload(Publication publication);
 
-    public Optional<Publication> getPublication(String id);
+    Optional<Publication> getPublication(String id);
 
-    public ResponseEntity<ResponseMessage> updateReviewScore(String id);
+    ResponseEntity<ResponseMessage> updateReviewScore(String id);
 
-    public ResponseEntity<List<Publication>> getPublicationToReview(String id);
+    ResponseEntity<List<Publication>> getPublicationToReview(String id);
 
-    public String storeFile(MultipartFile file) throws IOException;
+    String storeFile(MultipartFile file) throws IOException;
 
-    public ResponseEntity<ResponseMessage> deletePublication(String id);
+    ResponseEntity<ResponseMessage> deletePublication(String id);
+
+    ResponseEntity <List<Publication>> getMyPublications(String id);
+
+    ResponseEntity <List<Publication>> getApprovedPublications();
+
+    ResponseEntity<List<Publication>> getPublicationsToReviewByAuthor();
+
+    ResponseEntity<ResponseMessage> assignReviewers(String id, List<String> reviewers);
 
 }

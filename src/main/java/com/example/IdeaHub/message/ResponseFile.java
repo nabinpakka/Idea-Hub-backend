@@ -1,4 +1,4 @@
-package com.example.IdeaHub.data.message;
+package com.example.IdeaHub.message;
 
 public class ResponseFile {
 

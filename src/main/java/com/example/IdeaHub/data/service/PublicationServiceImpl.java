@@ -1,12 +1,16 @@
 package com.example.IdeaHub.data.service;
 
-import com.example.IdeaHub.data.message.ResponseMessage;
+import com.example.IdeaHub.auth.model.ApplicationUser;
+import com.example.IdeaHub.auth.service.ApplicationUserDetails;
+import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.repo.PublicationRepo;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +19,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-//this automatically constructs constructor with all the required repo
 @Service
 public class PublicationServiceImpl implements PublicationService{
 
@@ -32,9 +35,18 @@ public class PublicationServiceImpl implements PublicationService{
     public ResponseEntity<ResponseMessage> upload(Publication publication){
 
         try{
-            publicationRepo.save(publication);
             String message= "Upload Successful";
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            String authorId="";
+            //getting current user
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(principal instanceof UserDetails){
+                authorId = ((ApplicationUserDetails) principal).getUserId();
+                publication.setAuthorId(authorId);
+                publicationRepo.save(publication);
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            }
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         } catch (Exception e) {
             e.printStackTrace();
             String message= "Upload Failed";
@@ -84,16 +96,98 @@ public class PublicationServiceImpl implements PublicationService{
 
 
     @Override
-    public ResponseEntity<List<Publication>> getPublicationToReview(String id) {
+    public ResponseEntity<List<Publication>> getPublicationToReview(String publicationHouse) {
         List<Publication> publications = new ArrayList<>();
 
         try{
             //we want only the publication that are yet to be approved
-            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,id);
+            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,publicationHouse);
+
+            //checking if publications is null
+            if(publications.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
             return ResponseEntity.status(HttpStatus.OK).body(publications);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(publications);
+        }
+
+    }
+
+    @Override
+    public ResponseEntity<List<Publication>> getMyPublications(String authorId) {
+        List<Publication> publications = new ArrayList<>();
+        try{
+            publications = publicationRepo.findAllByAuthorId(authorId);
+            return ResponseEntity.status(HttpStatus.OK).body(publications);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+
+    //get public publications
+    //these publications are approved by publication house
+    @Override
+    public ResponseEntity<List<Publication>> getApprovedPublications() {
+        List<Publication> publications = new ArrayList<>();
+        try{
+            publicationRepo.findAllByApproved(true);
+            return ResponseEntity.status(HttpStatus.OK).body(publications);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<Publication>> getPublicationsToReviewByAuthor() {
+        List<Publication> publications = new ArrayList<>();
+        try{
+
+            //take author id from security context
+            String authorId="";
+            //getting current user
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(principal instanceof UserDetails){
+                authorId = ((ApplicationUserDetails) principal).getUserId();
+                publications = publicationRepo.findAllByReviewersEquals(authorId);
+                return ResponseEntity.status(HttpStatus.OK).body(publications);
+            }
+
+
+            return ResponseEntity.status(HttpStatus.OK).body(publications);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> assignReviewers(String id, List<String> reviewers) {
+        //checking if 5 reviewers are present
+        if(reviewers.size() < 5){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("5 reviewers are mandatory"));
+        }
+        try{
+            //first get the pulblication with that id
+            Optional<Publication> publication = publicationRepo.findById(id);
+            if (publication.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage("Publication with id "+ id+" was not found."));
+
+            }
+            Publication publication1 = publication.get();
+            publication1.setReviewers(reviewers);
+
+            //now save the publication
+            publicationRepo.save(publication1);
+
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage("Reviewers assigned successfully!"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(e.getMessage()));
         }
 
     }

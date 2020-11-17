@@ -1,6 +1,6 @@
 package com.example.IdeaHub.data.exception;
 
-import com.example.IdeaHub.data.message.ResponseMessage;
+import com.example.IdeaHub.message.ResponseMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

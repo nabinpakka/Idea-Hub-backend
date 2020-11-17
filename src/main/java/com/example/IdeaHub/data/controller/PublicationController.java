@@ -1,14 +1,14 @@
 package com.example.IdeaHub.data.controller;
 
-import com.example.IdeaHub.data.message.ResponseMessage;
-import com.example.IdeaHub.data.model.FileDB;
+import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.service.FileStorageService;
 import com.example.IdeaHub.data.service.PublicationService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,22 +30,20 @@ public class PublicationController {
     }
 
     @PostMapping("/upload")
+    @PreAuthorize("hasAuthority('write:publication')")
     public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file,
                                                       @RequestParam("title") String title,
                                                       @RequestParam("abstract") String abs,
                                                       @RequestParam("reviewScore") Integer reviewScore,
                                                       @RequestParam("detail") String detail,
-                                                      @RequestParam("publicationHouse") String publicationHouse,
-                                                      @RequestParam("authorId") String authorId,
-                                                      @RequestParam("reviewers") List<String> reviewers
+                                                      @RequestParam("publicationHouse") String publicationHouse
                                                       ) {
         String message = "";
         try{
 
             String fileId = publicationService.storeFile(file);
-
             Publication publication = new Publication(
-                    authorId,title,abs,detail,reviewScore,publicationHouse,reviewers,fileId
+                    title,abs,detail,reviewScore,publicationHouse,fileId
             );
 
             //saving publication
@@ -59,14 +57,6 @@ public class PublicationController {
         }
     }
 
-    //here the id is id of publication house
-    //the id should not contain ; as it cause error while executing sql command
-    //getting all the publications to be reviewed for this publicationHouse
-    @GetMapping("/publicationToReview/{id}")
-    public ResponseEntity<List<Publication>> getPublicationToReview(@PathVariable String id){
-            return publicationService.getPublicationToReview(id);
-    }
-
     //getting publication with id
     @GetMapping("{id}")
     public ResponseEntity<Optional<Publication>> getPublication(@PathVariable String id){
@@ -78,17 +68,59 @@ public class PublicationController {
 
     }
 
+
+    //getting publication by Author id
+    @GetMapping ("/userPublications/{id}")
+    @PreAuthorize("hasRole('ROLE_AUTHOR')")
+    public ResponseEntity<List<Publication>>  getMyPublications(@PathVariable String id){
+        return publicationService.getMyPublications(id);
+    }
+
+
+    //getting all the approved publications
+    @GetMapping
+    public ResponseEntity<List<Publication>> getApprovedPublications(){
+        return publicationService.getApprovedPublications();
+    }
+
     //deleting publication with id
     @DeleteMapping ("{id}")
     public ResponseEntity<ResponseMessage> deletePublication(@PathVariable String id){
         return publicationService.deletePublication(id);
     }
 
+    //here the id is id of publication house
+    //the id should not contain ; as it cause error while executing sql command
+    //getting all the publications to be reviewed for this publicationHouse
+    @GetMapping("/publicationsToReview/{publicationHouseId}")
+    @PreAuthorize("hasAuthority('list:submitted_publication')")
+    public ResponseEntity<List<Publication>> getPublicationToReview(@PathVariable String publicationHouseId){
+        return publicationService.getPublicationToReview(publicationHouseId);
+    }
+
+    //publication to review
+    //returns all the publications to review to author with his/her id in it
+    @GetMapping("/publicationsToReviewByAuthor")
+    @PreAuthorize("hasRole('ROLE_AUTHOR')")
+    public ResponseEntity<List<Publication>> getPublicationToReviewByAuthor(){
+        return publicationService.getPublicationsToReviewByAuthor();
+    }
+
+
     //updating review score
     @PostMapping("/updateReview/{id}")
+    @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<ResponseMessage> updateReview(@PathVariable String id){
         return publicationService.updateReviewScore(id);
 
     }
 
-}
+    //assigning reviewers to a publication
+    //this is only authorized to publication house
+    //publication house can only assign reviewers to publications submitted to them
+    @PostMapping("/assignReviewers/{id}")
+    @PreAuthorize("hasRole('ROLE_PUBLICATION_HOUSE')")
+    public ResponseEntity<ResponseMessage> assignReviewers(@PathVariable String id ,@RequestParam("reviewers") List<String>reviewers){
+        return publicationService.assignReviewers(id,reviewers);
+    }
+}   

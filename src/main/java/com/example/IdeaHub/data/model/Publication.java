@@ -24,11 +24,11 @@ public class Publication {
 
     //abstract is keywords hence abs
     @Lob
-    @Column(name = "abstract")
+    @Column(name = "abstract",columnDefinition = "TEXT(500)")
     private String  abs;
 
     @Lob
-    @Column(name = "detail")
+    @Column(name = "detail",columnDefinition = "TEXT(500)")
     private String detail;
 
 
@@ -48,15 +48,14 @@ public class Publication {
 
     @ElementCollection
     @Column (name = "reviewers")
-    private List<String> reviewers= new ArrayList<>();
+    private List<String> reviewers;
 
-    public Publication(@JsonProperty("authorId") String authorId,
+    public Publication(
                        @JsonProperty("title") String title,
                        @JsonProperty("abstract") String abs,
                        @JsonProperty("detail") String detail,
                        @JsonProperty("reviewScore") Integer reviewScore,
                        @JsonProperty("publicationHouse") String publicationHouse,
-                       @JsonProperty("reviewers") List<String> reviewers,
                        String fileId) {
         this.authorId = authorId;
         this.title = title;
@@ -65,8 +64,8 @@ public class Publication {
         this.reviewScore = reviewScore;
         this.publicationHouse = publicationHouse;
         this.fileId = fileId;
-        this.reviewers = reviewers;
         this.approved = false;
+        this.reviewers = new ArrayList<>();
     }
 
 

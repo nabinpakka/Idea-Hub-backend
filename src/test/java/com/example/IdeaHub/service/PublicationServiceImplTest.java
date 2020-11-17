@@ -1,6 +1,6 @@
 package com.example.IdeaHub.service;
 
-import com.example.IdeaHub.data.message.ResponseMessage;
+import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.repo.PublicationRepo;
 import com.example.IdeaHub.data.service.PublicationServiceImpl;
