@@ -17,13 +17,13 @@ public interface PublicationService {
 
     ResponseEntity<ResponseMessage> updateReviewScore(String id);
 
-    ResponseEntity<List<Publication>> getPublicationToReview(String id);
+    ResponseEntity<List<Publication>> getPublicationToReview();
 
     String storeFile(MultipartFile file) throws IOException;
 
     ResponseEntity<ResponseMessage> deletePublication(String id);
 
-    ResponseEntity <List<Publication>> getMyPublications(String id);
+    ResponseEntity <List<Publication>> getMyPublications();
 
     ResponseEntity <List<Publication>> getApprovedPublications();
 

@@ -68,10 +68,10 @@ public class PublicationController {
 
 
     //getting publication by Author id
-    @GetMapping ("/userPublications/{id}")
+    @GetMapping ("/userPublications")
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
-    public ResponseEntity<List<Publication>>  getMyPublications(@PathVariable String id){
-        return publicationService.getMyPublications(id);
+    public ResponseEntity<List<Publication>>  getMyPublications(){
+        return publicationService.getMyPublications();
     }
 
 
@@ -90,10 +90,10 @@ public class PublicationController {
     //here the id is id of publication house
     //the id should not contain ; as it cause error while executing sql command
     //getting all the publications to be reviewed for this publicationHouse
-    @GetMapping("/publicationsToReview/{publicationHouseId}")
+    @GetMapping("/publicationsToReview")
     @PreAuthorize("hasAuthority('list:submitted_publication')")
-    public ResponseEntity<List<Publication>> getPublicationToReview(@PathVariable String publicationHouseId){
-        return publicationService.getPublicationToReview(publicationHouseId);
+    public ResponseEntity<List<Publication>> getPublicationToReview(){
+        return publicationService.getPublicationToReview();
     }
 
     //publication to review

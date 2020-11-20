@@ -33,10 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             ApplicationUserDetails applicationUserDetails = (ApplicationUserDetails) applicationUserDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(applicationUserDetails,null,applicationUserDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+
         }
 
         //this will execute other filters in the filter chain
         filterChain.doFilter(httpServletRequest,httpServletResponse);
+
     }
 
     private String getJwtFromRequest(HttpServletRequest request){

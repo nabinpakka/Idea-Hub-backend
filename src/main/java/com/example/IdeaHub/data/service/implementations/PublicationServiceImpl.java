@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -38,22 +39,29 @@ public class PublicationServiceImpl implements PublicationService {
         this.publicationRepo = publicationRepo;
     }
 
+    public String getCurrentApplicationUserId(){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principal instanceof UserDetails) {
+            return ((ApplicationUserDetails) principal).getUserId();
+        }else{
+            return null;
+        }
+    }
+
     public ResponseEntity<ResponseMessage> upload(Publication publication){
 
         try{
             String message= "Upload Successful";
-            String authorId;
-            //getting current user
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            System.out.println(principal);
-            if(principal instanceof UserDetails){
-                authorId = ((ApplicationUserDetails) principal).getUserId();
-                publication.setAuthorId(authorId);
-                publicationRepo.save(publication);
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-            }
+            String currentUserId = this.getCurrentApplicationUserId();
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+            if (currentUserId == null){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+            }
+            publication.setAuthorId(currentUserId);
+            publicationRepo.save(publication);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+
+
         } catch (Exception e) {
             e.printStackTrace();
             String message= "Upload Failed";
@@ -67,12 +75,33 @@ public class PublicationServiceImpl implements PublicationService {
         return publicationRepo.findById(id);
     }
 
+
+    //you should add this in utilities later
+    //updating approve status after analysing reviewScore
+    private int updateApprovedStatus(Publication publication) {
+
+        try{
+            publication.setApproved(true);
+            publicationRepo.save(publication);
+            return 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> updateReviewScore(String id) throws NoSuchElementException {
+    public ResponseEntity<ResponseMessage> updateReviewScore(String publicationId) throws NoSuchElementException {
         int approvalThreshold = 3;
 
         try{
-            Optional<Publication> publication = publicationRepo.findById(id);
+            //we do not have to check if current user is reviewer to the publication
+            //as only those publication will be accessed by the user in which he/she has been assigned as
+            //reviewer
+            //also after one successful review frontend page will call the api which lists the to-review publications
+            //which will not contain recently reviewed publication
+            Optional<Publication> publication = publicationRepo.findById(publicationId);
 
             if(publication.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -83,6 +112,15 @@ public class PublicationServiceImpl implements PublicationService {
                 publication.get().setReviewScore( reviewScore);
                 publicationRepo.save(publication.get());
 
+                //deleting current user from reviewer list of this publication
+                //to stop multiple approval from same reviewer
+
+                //first getting current user id
+                String currentUserId= this.getCurrentApplicationUserId();
+                //now deleting current user Id from reviewer list
+                reviewersRepo.deleteReviewersByAuthorIdAndAndPublicationId(currentUserId,publicationId);
+
+                //checking reviewScore for approval of the publication
                 if(reviewScore >= approvalThreshold ){
                     int status  = updateApprovedStatus(publication.get());
                     if(status <= 0){
@@ -96,7 +134,7 @@ public class PublicationServiceImpl implements PublicationService {
 
         } catch (NoSuchElementException e) {
             e.printStackTrace();
-            String message = "Publication with id: "+ id +" was not found";
+            String message = "Publication with id: "+ publicationId +" was not found";
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
         }catch (Exception e){
             e.printStackTrace();
@@ -107,12 +145,14 @@ public class PublicationServiceImpl implements PublicationService {
 
 
     @Override
-    public ResponseEntity<List<Publication>> getPublicationToReview(String publicationHouse) {
+    public ResponseEntity<List<Publication>> getPublicationToReview() {
         List<Publication> publications = new ArrayList<>();
 
         try{
             //we want only the publication that are yet to be approved
-            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,publicationHouse);
+            //getting publication house id
+            String publicationHouseId = this.getCurrentApplicationUserId();
+            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,publicationHouseId);
 
             //checking if publications is null
             if(publications.isEmpty()){
@@ -127,11 +167,19 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public ResponseEntity<List<Publication>> getMyPublications(String authorId) {
+    public ResponseEntity<List<Publication>> getMyPublications() {
         List<Publication> publications;
         try{
+
+            //take author id from security context
+            String authorId = this.getCurrentApplicationUserId();
+
+            if (authorId == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
             publications = publicationRepo.findAllByAuthorId(authorId);
             return ResponseEntity.status(HttpStatus.OK).body(publications);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -152,9 +200,6 @@ public class PublicationServiceImpl implements PublicationService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
-
-
 
     //this queries publications by authorId and returns list of publication ids
     //which are assigned to the author to review
@@ -178,23 +223,18 @@ public class PublicationServiceImpl implements PublicationService {
         try{
 
             //take author id from security context
-            String authorId;
-            //getting current user
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principal instanceof UserDetails){
-                authorId = ((ApplicationUserDetails) principal).getUserId();
-
-                //getting publication ids
-                publicationIds = getPublicationIdsToReview(authorId);
-
-                for (String publicationId:publicationIds){
-                    publications.add(publicationRepo.findByUuid(publicationId));
-                }
-                return ResponseEntity.status(HttpStatus.OK).body(publications);
+            String authorId = this.getCurrentApplicationUserId();
+            if(authorId ==null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
+            //getting publication ids
+            publicationIds = getPublicationIdsToReview(authorId);
 
-
+            for (String publicationId:publicationIds){
+                publications.add(publicationRepo.findByUuid(publicationId));
+            }
             return ResponseEntity.status(HttpStatus.OK).body(publications);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -204,7 +244,7 @@ public class PublicationServiceImpl implements PublicationService {
     @Override
     public ResponseEntity<ResponseMessage> assignReviewers(String publicationId, List<String> reviewers) {
         //checking if 5 reviewers are present
-        if(reviewers.size() < 5){
+        if(reviewers.size() != 5){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("5 reviewers are mandatory"));
         }
         try{
@@ -263,22 +303,5 @@ public class PublicationServiceImpl implements PublicationService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         }
     }
-
-
-    //you should add this in utilities later
-    //updating approve status after analysing reviewScore
-    private int updateApprovedStatus(Publication publication) {
-
-        try{
-            publication.setApproved(true);
-            publicationRepo.save(publication);
-            return 1;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
 
 }

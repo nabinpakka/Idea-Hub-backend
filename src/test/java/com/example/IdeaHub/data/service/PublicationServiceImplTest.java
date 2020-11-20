@@ -75,8 +75,9 @@ public class PublicationServiceImplTest {
 
     @Test
     void upload(){
-        configSecurityContext();
+        this.configSecurityContext();
 
+        when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
         ResponseEntity<ResponseMessage> upload = publicationService.upload(publication);
         assertThat(upload.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -99,16 +100,18 @@ public class PublicationServiceImplTest {
         assertThat(publication1.get()).isInstanceOf(Publication.class);
     }
 
+
+    //get user with role author for id inside getMyPublication
     @Test
     void getMyPublication(){
+        this.configSecurityContext();
 
         when(publicationRepo.findAllByAuthorId(id)).thenReturn(publications);
-        ResponseEntity<List<Publication>> response = publicationService.getMyPublications(id);
+        when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
+        ResponseEntity<List<Publication>> response = publicationService.getMyPublications();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().get(0)).isInstanceOf(Publication.class);
-
-        //there is a warning but not harmful
 
     }
 
@@ -125,9 +128,11 @@ public class PublicationServiceImplTest {
     @Test
     void updateReviewScore(){
 //        String id = "asdfa-fasdf-afs-fas-df";
+        this.configSecurityContext();
         when(publicationRepo.findById(id)).thenReturn(
                 Optional.ofNullable(publication)
         );
+        when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
         ResponseEntity<ResponseMessage> returnedResponse= publicationService.updateReviewScore(id);
         assertThat(Objects.requireNonNull(returnedResponse.getBody()).getMessage()).isEqualTo(
                 "Review Score updated successfully"
@@ -138,19 +143,22 @@ public class PublicationServiceImplTest {
 
     @Test
     public void getPublicationToReview(){
+        this.configSecurityContext();
+        when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
         when(publicationRepo.findAllByApprovedAndPublicationHouse(false,id)).thenReturn(
                 //study this method
                 Collections.singletonList(publication)
         );
-        ResponseEntity<List<Publication>> publications = publicationService.getPublicationToReview(id);
+        ResponseEntity<List<Publication>> publications = publicationService.getPublicationToReview();
         assertThat(publications.getBody().get(0)).isInstanceOf(Publication.class);
     }
 
 
     @Test
     public void getPublicationsToReviewByAuthor(){
-        configSecurityContext();
+        this.configSecurityContext();
 
+        when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
         ResponseEntity<List<Publication>> response = publicationService.getPublicationsToReviewByAuthor();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
