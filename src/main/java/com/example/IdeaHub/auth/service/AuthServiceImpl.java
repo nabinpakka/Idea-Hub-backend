@@ -6,28 +6,34 @@ import com.example.IdeaHub.auth.model.LoginDao;
 import com.example.IdeaHub.auth.repo.ApplicationUserRepo;
 import com.example.IdeaHub.config.security.JwtProvider;
 import com.example.IdeaHub.message.ResponseMessage;
+import org.apache.coyote.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Service
 public class AuthServiceImpl implements AuthService{
 
-    private ApplicationUserRepo applicationUserRepo;
+    private final ApplicationUserRepo applicationUserRepo;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    private JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
     public AuthServiceImpl(ApplicationUserRepo applicationUserRepo,
                        PasswordEncoder passwordEncoder,
@@ -58,6 +64,26 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
+
+    //Jwt token is not blacklisted as it will be deleted in client side
+    //blacklist maybe implemented in future
+    @Override
+    public ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response){
+        try{
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if(auth instanceof AnonymousAuthenticationToken || auth ==null){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage("User not found"));
+            }
+            new SecurityContextLogoutHandler().logout(request,response,auth);
+            SecurityContextHolder.getContext().setAuthentication(null);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage("Successfully logged out."));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(e.getMessage()));
+        }
+
+    }
+
     @Override
     public ResponseEntity<ResponseMessage> login(LoginDao loginDao){
         try{
@@ -77,7 +103,7 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public ResponseEntity<List<ApplicationUser>> getAllAuthors() {
-        List<ApplicationUser> authors = new ArrayList<ApplicationUser>();
+        List<ApplicationUser> authors ;
         try{
             authors = applicationUserRepo.findAllByRole("AUTHOR");
 
@@ -90,4 +116,5 @@ public class AuthServiceImpl implements AuthService{
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }

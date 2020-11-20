@@ -1,7 +1,7 @@
 package com.example.IdeaHub.data.controller;
 
 import com.example.IdeaHub.data.model.FileDB;
-import com.example.IdeaHub.data.service.FileStorageService;
+import com.example.IdeaHub.data.service.interfaces.FileStorageService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

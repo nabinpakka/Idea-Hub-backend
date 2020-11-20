@@ -1,4 +1,4 @@
-package com.example.IdeaHub.data.service;
+package com.example.IdeaHub.data.service.interfaces;
 
 import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;

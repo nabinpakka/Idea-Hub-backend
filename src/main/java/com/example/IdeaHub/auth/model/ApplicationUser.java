@@ -3,7 +3,6 @@ package com.example.IdeaHub.auth.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.*;
 
 @Entity
 @Table(name = "applicationUser")
@@ -22,9 +21,6 @@ public class ApplicationUser {
 
     @Column(name = "role")
     private String role;
-
-    @ElementCollection
-    private List<String> filesToReview = new ArrayList<>();
 
     public ApplicationUser(String username, String password,
                            String role) {
@@ -68,14 +64,6 @@ public class ApplicationUser {
         this.role = role;
     }
 
-    public List<String> getFilesToReview() {
-        return filesToReview;
-    }
-
-    public void setFilesToReview(List<String> filesToReview) {
-        this.filesToReview = filesToReview;
-    }
-
     @Override
     public String toString() {
         return "ApplicationUser{" +
@@ -83,7 +71,6 @@ public class ApplicationUser {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
-                ", filesToReview=" + filesToReview +
                 '}';
     }
 }

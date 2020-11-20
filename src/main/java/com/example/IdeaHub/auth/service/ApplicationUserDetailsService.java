@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("applicationUserDetailsService")
 public class ApplicationUserDetailsService implements UserDetailsService {
 
     private final ApplicationUserRepo applicationUserRepo;
@@ -33,6 +33,4 @@ public class ApplicationUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(username+" does not exists");
         }
     }
-
-
 }

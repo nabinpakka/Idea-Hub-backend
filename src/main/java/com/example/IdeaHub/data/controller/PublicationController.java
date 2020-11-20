@@ -2,13 +2,12 @@ package com.example.IdeaHub.data.controller;
 
 import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
-import com.example.IdeaHub.data.service.FileStorageService;
-import com.example.IdeaHub.data.service.PublicationService;
+import com.example.IdeaHub.data.service.interfaces.FileStorageService;
+import com.example.IdeaHub.data.service.interfaces.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,14 +29,14 @@ public class PublicationController {
     }
 
     @PostMapping("/upload")
-    @PreAuthorize("hasAuthority('write:publication')")
-    public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file,
+    @PreAuthorize("hasRole('AUTHOR')")
+    public ResponseEntity<ResponseMessage> uploadPublication(@RequestParam("file") MultipartFile file,
                                                       @RequestParam("title") String title,
                                                       @RequestParam("abstract") String abs,
                                                       @RequestParam("detail") String detail,
                                                       @RequestParam("publicationHouse") String publicationHouse
                                                       ) {
-        String message = "";
+        String message ;
         try{
 
             String fileId = publicationService.storeFile(file);
@@ -107,6 +106,7 @@ public class PublicationController {
 
 
     //updating review score
+    //id here is publication id
     @PostMapping("/updateReview/{id}")
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<ResponseMessage> updateReview(@PathVariable String id){

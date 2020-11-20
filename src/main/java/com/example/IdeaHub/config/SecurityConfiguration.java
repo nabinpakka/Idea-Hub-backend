@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     public SecurityConfiguration(@Qualifier("applicationUserDetailsService") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -52,8 +52,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/swagger-resources/configuration/security",
                 "/configuration/security",
                 "/swagger-ui.html",
-                "/webjars/**")
-                .antMatchers(String.valueOf(HttpMethod.OPTIONS),"/**");;
+                "/webjars/**","/swagger-ui/**");
+        //this causes security context not found error as it ignores security for all the url
+        //-i.e- /** ignores security for all urls from the root
+//                .antMatchers(String.valueOf(HttpMethod.OPTIONS),"/**");;
     }
 
     @Override
@@ -70,12 +72,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/configuration/security",
                         "/swagger-ui.html",
                         "/webjars/**",
-                        "/api/auth/**").permitAll()
+                        "/api/auth/**","/logout").permitAll()
                 .anyRequest()
                 .authenticated();
 //                .and()
 //                .formLogin()
-//                .loginProcessingUrl("/api/auth/login")
+//                .loginProcessingUrl("/api/auth/login").permitAll()
 //                .and()
 //                .logout()
 //                .logoutUrl("/logout")

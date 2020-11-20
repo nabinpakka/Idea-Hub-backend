@@ -10,7 +10,7 @@ import static com.example.IdeaHub.config.ApplicationUserRole.*;
 
 public class ApplicationUserDetails  implements UserDetails {
 
-    private ApplicationUser user;
+    private final ApplicationUser user;
 
     public ApplicationUserDetails(ApplicationUser user) {
         this.user = user;

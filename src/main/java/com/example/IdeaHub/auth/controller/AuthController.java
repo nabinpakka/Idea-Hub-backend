@@ -7,6 +7,9 @@ import com.example.IdeaHub.message.ResponseMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -27,6 +30,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseMessage> login(@RequestBody LoginDao loginDao){
         return authService.login(loginDao);
+    }
+
+
+    @RequestMapping(value = "/logout",method = RequestMethod.GET)
+    public ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response){
+        return authService.logout(request,response);
     }
 
     //getting all the authors for admin and publication_house

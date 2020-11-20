@@ -46,17 +46,12 @@ public class Publication {
     @Column(name="approved",columnDefinition = "TINYINT")
     private Boolean approved;
 
-    @ElementCollection
-    @Column (name = "reviewers")
-    private List<String> reviewers;
-
     public Publication(
                        @JsonProperty("title") String title,
                        @JsonProperty("abstract") String abs,
                        @JsonProperty("detail") String detail,
                        @JsonProperty("publicationHouse") String publicationHouse,
                        String fileId) {
-        this.authorId = authorId;
         this.title = title;
         this.abs = abs;
         this.detail = detail;
@@ -64,7 +59,6 @@ public class Publication {
         this.publicationHouse = publicationHouse;
         this.fileId = fileId;
         this.approved = false;
-        this.reviewers = new ArrayList<>();
     }
 
 
@@ -72,13 +66,6 @@ public class Publication {
 
     }
 
-    public List<String> getReviewers() {
-        return reviewers;
-    }
-
-    public void setReviewers(List<String> reviewers) {
-        this.reviewers = reviewers;
-    }
 
     public String getUuid() {
         return uuid;

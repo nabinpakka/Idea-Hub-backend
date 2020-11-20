@@ -1,7 +1,6 @@
 package com.example.IdeaHub.auth.repo;
 
 import com.example.IdeaHub.auth.model.ApplicationUser;
-import com.example.IdeaHub.data.model.Publication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
