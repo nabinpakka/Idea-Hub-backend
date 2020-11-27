@@ -48,7 +48,8 @@ public class PublicationServiceImpl implements PublicationService {
         }
     }
 
-    public ResponseEntity<ResponseMessage> upload(Publication publication){
+    @Override
+    public ResponseEntity<ResponseMessage> uploadPublication(Publication publication){
 
         try{
             String message= "Upload Successful";
@@ -151,8 +152,12 @@ public class PublicationServiceImpl implements PublicationService {
         try{
             //we want only the publication that are yet to be approved
             //getting publication house id
-            String publicationHouseId = this.getCurrentApplicationUserId();
-            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,publicationHouseId);
+            String publicationHouse= "";
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (principal instanceof  UserDetails){
+                publicationHouse=((UserDetails) principal).getUsername();
+            }
+            publications = publicationRepo.findAllByApprovedAndPublicationHouse(false,publicationHouse);
 
             //checking if publications is null
             if(publications.isEmpty()){
@@ -281,22 +286,34 @@ public class PublicationServiceImpl implements PublicationService {
         try{
             Optional<Publication> publication = this.getPublication(id);
 
-            if(publication.isPresent()){
-                String fileId = publication.get().getFileId();
-                //deleting file associated with publication
-                int status = fileStorageService.deleteFile(fileId);
-                String message;
-                if(status <= 0){
-                    message = "File associated with publication was not found";
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
-                }
-                publicationRepo.deleteById(id);
-                message = "Publication deleted successfully";
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-            }
-            else{
+            if(publication.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
+
+            String authorId = this.getCurrentApplicationUserId();
+            if(authorId ==null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            //checking if current user is the author of the publication
+            else if (!authorId.equals(publication.get().getAuthorId())){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+
+            String fileId = publication.get().getFileId();
+            //deleting file associated with publication
+            int status = fileStorageService.deleteFile(fileId);
+            String message;
+            if(status <= 0){
+                message = "File associated with publication was not found";
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+            }
+            publicationRepo.deleteById(id);
+            message = "Publication deleted successfully";
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
             String message = e.getMessage();

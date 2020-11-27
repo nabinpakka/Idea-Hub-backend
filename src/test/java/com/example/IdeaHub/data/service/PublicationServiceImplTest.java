@@ -78,8 +78,8 @@ public class PublicationServiceImplTest {
         this.configSecurityContext();
 
         when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
-        ResponseEntity<ResponseMessage> upload = publicationService.upload(publication);
-        assertThat(upload.getStatusCode()).isEqualTo(HttpStatus.OK);
+        ResponseEntity<ResponseMessage> response = publicationService.uploadPublication(publication);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 //    @Test

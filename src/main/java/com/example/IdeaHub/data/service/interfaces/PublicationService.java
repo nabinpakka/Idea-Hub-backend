@@ -11,7 +11,7 @@ import java.util.*;
 
 public interface PublicationService {
 
-    ResponseEntity<ResponseMessage> upload(Publication publication);
+    ResponseEntity<ResponseMessage> uploadPublication(Publication publication);
 
     Optional<Publication> getPublication(String id);
 

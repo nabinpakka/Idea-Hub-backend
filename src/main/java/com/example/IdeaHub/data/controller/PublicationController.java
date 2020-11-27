@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/publication")
+@RequestMapping("/api/publications")
 public class PublicationController {
 
     private FileStorageService fileStorageService;
@@ -28,7 +28,7 @@ public class PublicationController {
         this.publicationService = publicationService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/")
     @PreAuthorize("hasRole('AUTHOR')")
     public ResponseEntity<ResponseMessage> uploadPublication(@RequestParam("file") MultipartFile file,
                                                       @RequestParam("title") String title,
@@ -45,7 +45,7 @@ public class PublicationController {
             );
 
             //saving publication
-            publicationService.upload(publication);
+            publicationService.uploadPublication(publication);
             message = "Uploaded Successfully";
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (IOException e) {
@@ -56,7 +56,7 @@ public class PublicationController {
     }
 
     //getting publication with id
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Optional<Publication>> getPublication(@PathVariable String id){
         return Optional
                 .of( publicationService.getPublication(id))
@@ -68,7 +68,7 @@ public class PublicationController {
 
 
     //getting publication by Author id
-    @GetMapping ("/userPublications")
+    @GetMapping ("/author")
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<List<Publication>>  getMyPublications(){
         return publicationService.getMyPublications();
@@ -82,7 +82,8 @@ public class PublicationController {
     }
 
     //deleting publication with id
-    @DeleteMapping ("{id}")
+    @DeleteMapping ("/{id}")
+    @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<ResponseMessage> deletePublication(@PathVariable String id){
         return publicationService.deletePublication(id);
     }
@@ -90,15 +91,15 @@ public class PublicationController {
     //here the id is id of publication house
     //the id should not contain ; as it cause error while executing sql command
     //getting all the publications to be reviewed for this publicationHouse
-    @GetMapping("/publicationsToReview")
-    @PreAuthorize("hasAuthority('list:submitted_publication')")
+    @GetMapping("/review/publicationHouse")
+    @PreAuthorize("hasRole('ROLE_PUBLICATION_HOUSE')")
     public ResponseEntity<List<Publication>> getPublicationToReview(){
         return publicationService.getPublicationToReview();
     }
 
     //publication to review
     //returns all the publications to review to author with his/her id in it
-    @GetMapping("/publicationsToReviewByAuthor")
+    @GetMapping("/review/author")
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<List<Publication>> getPublicationToReviewByAuthor(){
         return publicationService.getPublicationsToReviewByAuthor();
@@ -107,7 +108,7 @@ public class PublicationController {
 
     //updating review score
     //id here is publication id
-    @PostMapping("/updateReview/{id}")
+    @PutMapping("/reviewScore/{id}")
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
     public ResponseEntity<ResponseMessage> updateReview(@PathVariable String id){
         return publicationService.updateReviewScore(id);
@@ -117,9 +118,11 @@ public class PublicationController {
     //assigning reviewers to a publication
     //this is only authorized to publication house
     //publication house can only assign reviewers to publications submitted to them
-    @PostMapping("/assignReviewers/{id}")
+
+    //this is a post request as we will be creating new data in the reviewers table
+    @PutMapping("/reviewer/{id}")
     @PreAuthorize("hasRole('ROLE_PUBLICATION_HOUSE')")
-    public ResponseEntity<ResponseMessage> assignReviewers(@PathVariable String id ,@RequestParam("reviewers") List<String>reviewers){
+    public ResponseEntity<ResponseMessage> assignReviewers(@PathVariable String id ,@RequestBody List<String>reviewers){
         return publicationService.assignReviewers(id,reviewers);
     }
 }   

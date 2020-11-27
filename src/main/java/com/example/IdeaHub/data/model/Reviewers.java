@@ -1,14 +1,17 @@
 package com.example.IdeaHub.data.model;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 
 @Entity(name = "reviewers")
 public class Reviewers {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reviewId",unique = true)
-    private Long id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name="uuid",strategy = "uuid2")
+    @Column (name="uuid", unique = true)
+    private String uuid;
 
     private String publicationId;
 
@@ -23,12 +26,12 @@ public class Reviewers {
 
     }
 
-    public Long getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getPublicationId() {

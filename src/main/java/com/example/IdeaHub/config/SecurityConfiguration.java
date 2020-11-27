@@ -45,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/", "/csrf",
+                "/swagger/v2/**",
                 "/v2/api-docs",
                 "/swagger-resources/configuration/ui",
                 "/configuration/ui",
@@ -65,6 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "/csrf",
                         "/v2/api-docs",
+                        "/swagger/v2/swagger.json",
                         "/swagger-resources/configuration/ui",
                         "/configuration/ui",
                         "/swagger-resources",

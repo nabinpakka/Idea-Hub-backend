@@ -31,7 +31,6 @@ public class Publication {
     @Column(name = "detail",columnDefinition = "TEXT(500)")
     private String detail;
 
-
     @Column(name = "reviewScore" )
     private Integer reviewScore;
 
@@ -121,14 +120,6 @@ public class Publication {
 
     public void setReviewScore(Integer reviewScore) {
         this.reviewScore = reviewScore;
-    }
-
-    public String getPublishHouse() {
-        return publicationHouse;
-    }
-
-    public void setPublishHouse(String publishHouse) {
-        this.publicationHouse = publishHouse;
     }
 
     public String getFileId() {
