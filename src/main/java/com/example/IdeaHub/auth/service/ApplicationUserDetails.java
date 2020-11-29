@@ -32,6 +32,10 @@ public class ApplicationUserDetails  implements UserDetails {
         }
     }
 
+    public ApplicationUser getApplicationUser(){
+        return this.user;
+    }
+
     public String getUserId(){
         return this.user.getUuid();
     }

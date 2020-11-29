@@ -1,5 +1,6 @@
 package com.example.IdeaHub.auth.model;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -11,14 +12,38 @@ public class ApplicationUser {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name="uuid",strategy = "uuid2")
+    @ApiModelProperty(
+            notes = "Uuid of user",
+            name = "uuid",
+            required = true,
+            example= "98fda03-b259-48c5-bf22-9a5cd538d206"
+    )
     private String uuid;
 
+    @ApiModelProperty(
+            notes = "Username of user",
+            name = "username",
+            required = true,
+            example= "Angry pig"
+    )
     @Column(name = "username", unique = true, columnDefinition = "VARCHAR(128)")
     private String username;
 
+    @ApiModelProperty(
+            notes = "Password of user which is configured to be empty",
+            name = "password",
+            required = true,
+            example= ""
+    )
     @Column(name = "password")
     private String password;
 
+    @ApiModelProperty(
+            notes = "Role of user",
+            name = "role",
+            required = true,
+            example= "AUTHOR"
+    )
     @Column(name = "role")
     private String role;
 

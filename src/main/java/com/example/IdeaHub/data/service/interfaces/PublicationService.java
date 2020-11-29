@@ -13,9 +13,9 @@ public interface PublicationService {
 
     ResponseEntity<ResponseMessage> uploadPublication(Publication publication);
 
-    Optional<Publication> getPublication(String id);
+    ResponseEntity<Publication> getPublication(String id);
 
-    ResponseEntity<ResponseMessage> updateReviewScore(String id);
+    ResponseEntity<ResponseMessage> updateReviewScore(String id,boolean isApproved);
 
     ResponseEntity<List<Publication>> getPublicationToReview();
 
@@ -23,7 +23,9 @@ public interface PublicationService {
 
     ResponseEntity<ResponseMessage> deletePublication(String id);
 
-    ResponseEntity <List<Publication>> getMyPublications();
+    ResponseEntity <List<Publication>> getAuthorPublications();
+
+    ResponseEntity <List<Publication>> getPublicationHousePublications();
 
     ResponseEntity <List<Publication>> getApprovedPublications();
 

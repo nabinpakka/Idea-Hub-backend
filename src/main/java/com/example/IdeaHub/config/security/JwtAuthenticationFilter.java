@@ -4,9 +4,11 @@ import com.example.IdeaHub.auth.service.ApplicationUserDetails;
 import com.example.IdeaHub.auth.service.ApplicationUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
+import springfox.documentation.swagger.web.SecurityConfiguration;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -34,6 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(applicationUserDetails,null,applicationUserDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
+            //this was missing when react witnessed 403 error
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         //this will execute other filters in the filter chain

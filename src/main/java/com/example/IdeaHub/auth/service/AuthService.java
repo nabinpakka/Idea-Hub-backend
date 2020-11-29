@@ -3,6 +3,7 @@ package com.example.IdeaHub.auth.service;
 import com.example.IdeaHub.auth.model.ApplicationUser;
 import com.example.IdeaHub.auth.model.LoginDao;
 import com.example.IdeaHub.message.ResponseMessage;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,4 +18,6 @@ public interface AuthService {
     ResponseEntity<List<ApplicationUser>> getAllAuthors();
 
     ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response);
+
+    ResponseEntity<ApplicationUser> getCurrentApplicationUser();
 }

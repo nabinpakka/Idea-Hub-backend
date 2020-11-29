@@ -3,11 +3,9 @@ package com.example.IdeaHub.auth.service;
 
 import com.example.IdeaHub.auth.model.ApplicationUser;
 import com.example.IdeaHub.auth.model.LoginDao;
-import com.example.IdeaHub.auth.repo.ApplicationUserRepo;
+import com.example.IdeaHub.auth.model.repo.ApplicationUserRepo;
 import com.example.IdeaHub.config.security.JwtProvider;
 import com.example.IdeaHub.message.ResponseMessage;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -16,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
@@ -45,6 +44,7 @@ public class AuthServiceImpl implements AuthService{
         this.jwtProvider = jwtProvider;
     }
 
+
     @Override
     public ResponseEntity<ResponseMessage> signup(ApplicationUser applicationUser){
         try{
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService{
     public ResponseEntity<ResponseMessage> logout(HttpServletRequest request, HttpServletResponse response){
         try{
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if(auth instanceof AnonymousAuthenticationToken || auth ==null){
+            if( auth instanceof AnonymousAuthenticationToken && auth ==null){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage("User not found"));
             }
             new SecurityContextLogoutHandler().logout(request,response,auth);
@@ -85,6 +85,20 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
+    public ResponseEntity<ApplicationUser> getCurrentApplicationUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principal instanceof UserDetails){
+            ApplicationUserDetails currentApplicationUserDetails = (ApplicationUserDetails) principal;
+            ApplicationUser currentApplicationUser = currentApplicationUserDetails.getApplicationUser();
+
+            //setting password to empty string
+            currentApplicationUser.setPassword("");
+            return ResponseEntity.status(HttpStatus.OK).body(currentApplicationUser);
+        }
+        return null;
+    }
+
+    @Override
     public ResponseEntity<ResponseMessage> login(LoginDao loginDao){
         try{
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -93,9 +107,12 @@ public class AuthServiceImpl implements AuthService{
             ));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(jwtProvider.generateToken(authentication)));
+            String jwt  =jwtProvider.generateToken(authentication);
+            System.out.println(jwt);
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(jwt));
         } catch (AuthenticationException e) {
             e.printStackTrace();
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(e.getMessage()));
         }
     }
@@ -107,6 +124,11 @@ public class AuthServiceImpl implements AuthService{
         try{
             authors = applicationUserRepo.findAllByRole("AUTHOR");
 
+            //the authors list contains author object with encrypted password in it
+            //lets empty password field and return list of authors without passwords to the publication house
+            for (ApplicationUser author:authors){
+                author.setPassword("");
+            }
             if(authors.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }

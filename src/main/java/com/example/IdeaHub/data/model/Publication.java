@@ -1,6 +1,7 @@
 package com.example.IdeaHub.data.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -14,45 +15,114 @@ public class Publication {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name="uuid",strategy = "uuid2")
     @Column (name="uuid", unique = true)
+    @JsonProperty("uuid")
+    @ApiModelProperty(
+            notes = "Uuid of the publication",
+            name = "uuid",
+            required = true,
+            example=    "298fda03-b259-48c5-bf22-9a5cd538d206"
+    )
     private String uuid;
 
     @Column(name="authorId", columnDefinition = "VARCHAR(128)")
+    @ApiModelProperty(
+            notes = "Uuid of author of the publication",
+            name = "authorId",
+            required = true,
+            example="298fda03-b259-48c5-bf22-9a5cd538d206"
+    )
+    @JsonProperty("authorId")
     private String authorId;
 
     @Column(name ="title",columnDefinition = "VARCHAR(128)",unique = true)
+    @ApiModelProperty(
+            notes = "Title of the publication",
+            name = "title",
+            required = true,
+            example="Intrusion Detection System for IoT Networks using Machine Learning"
+    )
+    @JsonProperty("title")
     private String title;
 
     //abstract is keywords hence abs
     @Lob
     @Column(name = "abstract",columnDefinition = "TEXT(500)")
-    private String  abs;
+    @ApiModelProperty(
+            notes = "Abstract of the publication",
+            name = "abst",
+            required = true,
+            example=" Abstract of publication"
+    )
+    @JsonProperty("abst")
+    private String  abst;
+
 
     @Lob
     @Column(name = "detail",columnDefinition = "TEXT(500)")
+    @ApiModelProperty(
+            notes = "Detail of the publication",
+            name = "detail",
+            required = true,
+            example=" Detail of the publication"
+    )
+    @JsonProperty("detail")
     private String detail;
 
     @Column(name = "reviewScore" )
+    @ApiModelProperty(
+            notes = "No of approval of the publication",
+            name = "reviewScore",
+            required = true,
+            dataType = "java.lang.Integer",
+            value= "0",
+            example = "0"
+    )
+    @JsonProperty("reviewScore")
     private Integer reviewScore;
 
     @Column(name = "publicationHouse",columnDefinition = "VARCHAR(128)")
+    @ApiModelProperty(
+            notes = "Name of publication house where the pulblication has been submitted",
+            name = "publicationHouse",
+            required = true,
+            value= "0",
+            example= "Nima"
+    )
+    @JsonProperty("publicationHouse")
     private String publicationHouse;
 
     @Column(name = "fileId")
+    @ApiModelProperty(
+            notes = "Uuid of the file associated with the publication",
+            name = "fileId",
+            required = true,
+            value= "c",
+            example = "98fda03-b259-48c5-bf22-9a5cd538d206"
+    )
+    @JsonProperty("fileId")
     private String fileId;
 
     //first the variable name was isApproved
     //this cause error while filtering publication using this boolean
     @Column(name="approved",columnDefinition = "TINYINT")
+    @ApiModelProperty(
+            notes = "Uuid of the file associated with the publication",
+            name = "fileId",
+            required = true,
+            dataType = "java.lang.Boolean",
+            example = "true"
+    )
+    @JsonProperty("approved")
     private Boolean approved;
 
     public Publication(
-                       @JsonProperty("title") String title,
-                       @JsonProperty("abstract") String abs,
-                       @JsonProperty("detail") String detail,
-                       @JsonProperty("publicationHouse") String publicationHouse,
+                       String title,
+                       String abst,
+                       String detail,
+                       String publicationHouse,
                        String fileId) {
         this.title = title;
-        this.abs = abs;
+        this.abst = abst;
         this.detail = detail;
         this.reviewScore = 0;
         this.publicationHouse = publicationHouse;
@@ -99,11 +169,11 @@ public class Publication {
     }
 
     public String getAbs() {
-        return abs;
+        return abst;
     }
 
     public void setAbs(String abs) {
-        this.abs = abs;
+        this.abst = abs;
     }
 
     public String getDetail() {
@@ -142,7 +212,7 @@ public class Publication {
     public String toString() {
         return "Publication{" +
                 "title='" + title + '\'' +
-                ", abs='" + abs + '\'' +
+                ", abs='" + abst + '\'' +
                 ", detail='" + detail + '\'' +
                 ", reviewScore=" + reviewScore +
                 ", publishHouse='" + publicationHouse + '\'' +

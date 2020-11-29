@@ -1,4 +1,4 @@
-package com.example.IdeaHub.auth.repo;
+package com.example.IdeaHub.auth.model.repo;
 
 
 import com.example.IdeaHub.auth.model.ApplicationUser;

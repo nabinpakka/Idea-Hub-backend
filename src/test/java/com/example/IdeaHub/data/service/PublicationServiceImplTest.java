@@ -1,10 +1,10 @@
 package com.example.IdeaHub.data.service;
 
 import com.example.IdeaHub.auth.service.ApplicationUserDetails;
-import com.example.IdeaHub.data.repo.ReviewersRepo;
+import com.example.IdeaHub.data.model.repo.ReviewersRepo;
 import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
-import com.example.IdeaHub.data.repo.PublicationRepo;
+import com.example.IdeaHub.data.model.repo.PublicationRepo;
 import com.example.IdeaHub.data.service.implementations.PublicationServiceImpl;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,8 +57,6 @@ public class PublicationServiceImplTest {
         MockitoAnnotations.initMocks(this);
     }
 
-
-
     // these are the mocks needed for mocking security context holder
     private void configSecurityContext(){
         ApplicationUserDetails applicationUser = mock(ApplicationUserDetails.class);
@@ -95,20 +93,21 @@ public class PublicationServiceImplTest {
     @Test
     void getPublication(){
         when(publicationRepo.findById(id)).thenReturn(Optional.of(publication));
-        Optional<Publication> publication1= publicationService.getPublication(id);
-        assertThat(publication1).isNotNull();
-        assertThat(publication1.get()).isInstanceOf(Publication.class);
+        ResponseEntity<Publication> publication1= publicationService.getPublication(id);
+        assertThat(publication1.getStatusCode()).isNotNull();
+        assertThat(publication1.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(publication1.getBody()).isInstanceOf(Publication.class);
     }
 
 
     //get user with role author for id inside getMyPublication
     @Test
-    void getMyPublication(){
+    void getAuthorPublications(){
         this.configSecurityContext();
 
         when(publicationRepo.findAllByAuthorId(id)).thenReturn(publications);
         when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
-        ResponseEntity<List<Publication>> response = publicationService.getMyPublications();
+        ResponseEntity<List<Publication>> response = publicationService.getAuthorPublications();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().get(0)).isInstanceOf(Publication.class);
@@ -133,7 +132,7 @@ public class PublicationServiceImplTest {
                 Optional.ofNullable(publication)
         );
         when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
-        ResponseEntity<ResponseMessage> returnedResponse= publicationService.updateReviewScore(id);
+        ResponseEntity<ResponseMessage> returnedResponse= publicationService.updateReviewScore(id,true);
         assertThat(Objects.requireNonNull(returnedResponse.getBody()).getMessage()).isEqualTo(
                 "Review Score updated successfully"
         );

@@ -31,7 +31,11 @@ public class JwtProvider {
 
     public boolean validateToken(String jwt){
         try{
-            Jwts.parser().setSigningKey(key).parseClaimsJws(jwt);
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key).parseClaimsJws(jwt);
+
+            if(claimsJws.getSignature() ==null){
+                return false;
+            }
             return true;
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
             e.printStackTrace();

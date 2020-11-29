@@ -2,12 +2,12 @@ package com.example.IdeaHub.data.service.implementations;
 
 import com.example.IdeaHub.auth.service.ApplicationUserDetails;
 import com.example.IdeaHub.data.model.Reviewers;
-import com.example.IdeaHub.data.repo.ReviewersRepo;
+import com.example.IdeaHub.data.model.repo.ReviewersRepo;
 import com.example.IdeaHub.data.service.interfaces.FileStorageService;
 import com.example.IdeaHub.data.service.interfaces.PublicationService;
 import com.example.IdeaHub.message.ResponseMessage;
 import com.example.IdeaHub.data.model.Publication;
-import com.example.IdeaHub.data.repo.PublicationRepo;
+import com.example.IdeaHub.data.model.repo.PublicationRepo;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -72,8 +72,17 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
 
-    public Optional<Publication> getPublication(String id){
-        return publicationRepo.findById(id);
+    public ResponseEntity<Publication> getPublication(String id){
+        try{
+            Optional<Publication> oPublication =  publicationRepo.findById(id);
+            if(oPublication.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(oPublication.get());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
@@ -89,58 +98,6 @@ public class PublicationServiceImpl implements PublicationService {
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
-        }
-    }
-    @Transactional
-    @Override
-    public ResponseEntity<ResponseMessage> updateReviewScore(String publicationId) throws NoSuchElementException {
-        int approvalThreshold = 3;
-
-        try{
-            //we do not have to check if current user is reviewer to the publication
-            //as only those publication will be accessed by the user in which he/she has been assigned as
-            //reviewer
-            //also after one successful review frontend page will call the api which lists the to-review publications
-            //which will not contain recently reviewed publication
-            Optional<Publication> publication = publicationRepo.findById(publicationId);
-
-            if(publication.isEmpty()){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            else{
-                int reviewScore = publication.get().getReviewScore() +1;
-                //increasing approval score by one
-                publication.get().setReviewScore( reviewScore);
-                publicationRepo.save(publication.get());
-
-                //deleting current user from reviewer list of this publication
-                //to stop multiple approval from same reviewer
-
-                //first getting current user id
-                String currentUserId= this.getCurrentApplicationUserId();
-                //now deleting current user Id from reviewer list
-                reviewersRepo.deleteReviewersByAuthorIdAndAndPublicationId(currentUserId,publicationId);
-
-                //checking reviewScore for approval of the publication
-                if(reviewScore >= approvalThreshold ){
-                    int status  = updateApprovedStatus(publication.get());
-                    if(status <= 0){
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage("Update Approval failed"));
-                    }
-                }
-
-                String message = "Review Score updated successfully";
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-            }
-
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-            String message = "Publication with id: "+ publicationId +" was not found";
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
-        }catch (Exception e){
-            e.printStackTrace();
-            String message = e.toString();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
         }
     }
 
@@ -172,7 +129,7 @@ public class PublicationServiceImpl implements PublicationService {
     }
 
     @Override
-    public ResponseEntity<List<Publication>> getMyPublications() {
+    public ResponseEntity<List<Publication>> getAuthorPublications() {
         List<Publication> publications;
         try{
 
@@ -183,6 +140,34 @@ public class PublicationServiceImpl implements PublicationService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
             publications = publicationRepo.findAllByAuthorId(authorId);
+            return ResponseEntity.status(HttpStatus.OK).body(publications);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<Publication>> getPublicationHousePublications() {
+        List<Publication> publications = new ArrayList<>();
+        List<Publication> submittedPublications  = new ArrayList<>();
+        try{
+            String publicationHouseId="";
+            String publicationHouse="";
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if(principal instanceof UserDetails) {
+                publicationHouseId =((ApplicationUserDetails) principal).getUserId();
+                publicationHouse =((ApplicationUserDetails) principal).getUsername();
+            }
+
+            if (publicationHouseId == null || publicationHouse==null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            publications = publicationRepo.findAllByAuthorId(publicationHouseId);
+            //also getting all the publications submitted to the publication house
+            submittedPublications = publicationRepo.findAllByPublicationHouse(publicationHouse);
+            publications.addAll(submittedPublications);
             return ResponseEntity.status(HttpStatus.OK).body(publications);
 
         } catch (Exception e) {
@@ -275,6 +260,65 @@ public class PublicationServiceImpl implements PublicationService {
 
     }
 
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseMessage> updateReviewScore(String publicationId,boolean isApproved) throws NoSuchElementException {
+        int approvalThreshold = 3;
+
+        try{
+            //we do not have to check if current user is reviewer to the publication
+            //as only those publication will be accessed by the user in which he/she has been assigned as
+            //reviewer
+            //also after one successful review frontend page will call the api which lists the to-review publications
+            //which will not contain recently reviewed publication
+            Optional<Publication> publication = publicationRepo.findById(publicationId);
+
+            if(publication.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            else{
+                //review score is increased only if it has been approved
+                //else the publication has been rejected
+                //hence just removing the author from reviewer list
+
+                if(isApproved){
+                    int reviewScore = publication.get().getReviewScore() +1;
+                    //increasing approval score by one
+                    publication.get().setReviewScore( reviewScore);
+                    publicationRepo.save(publication.get());
+
+                    //checking reviewScore for approval of the publication
+                    if(reviewScore >= approvalThreshold ){
+                        int status  = updateApprovedStatus(publication.get());
+                        if(status <= 0){
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage("Update Approval failed"));
+                        }
+                    }
+                }
+
+                //deleting current user from reviewer list of this publication
+                //to stop multiple approval from same reviewer
+
+                //first getting current user id
+                String currentUserId= this.getCurrentApplicationUserId();
+                //now deleting current user Id from reviewer list
+                reviewersRepo.deleteReviewersByAuthorIdAndAndPublicationId(currentUserId,publicationId);
+
+                String message = "Review Score updated successfully";
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            }
+
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            String message = "Publication with id: "+ publicationId +" was not found";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
+        }catch (Exception e){
+            e.printStackTrace();
+            String message = e.toString();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+        }
+    }
+
     @SneakyThrows
     @Override
     public String storeFile(MultipartFile file)  {
@@ -284,7 +328,7 @@ public class PublicationServiceImpl implements PublicationService {
     @Override
     public ResponseEntity<ResponseMessage> deletePublication(String id) {
         try{
-            Optional<Publication> publication = this.getPublication(id);
+            Optional<Publication> publication = publicationRepo.findById(id);
 
             if(publication.isEmpty()){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

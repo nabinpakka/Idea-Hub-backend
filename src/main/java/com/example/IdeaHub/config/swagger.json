@@ -1,0 +1,791 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is an api documentation of the intern-project \"Idea-Hub\". This documentation should help to navigate through the server side of Idea-Hub.",
+    "version": "1.0.0",
+    "title": "Idea-Hub",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "paknans89@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Idea-Hub",
+      "description": "Ideas of great minds and an ideal source of knowledge",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "Auth",
+      "description": "Authentication process and all related to users"
+    },
+    {
+      "name": "Files",
+      "description": "Getting files related to respective publications."
+    },
+    {
+      "name": "Publications",
+      "description": "All about publications that users publish.",
+      "externalDocs": {
+        "description": "Find out more about our store",
+        "url": "http://swagger.io"
+      }
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/auth/getAllAuthors": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Returns all the available authors using this application",
+        "description": "These authors are listed for the publication house to choose reviewers for a publication.",
+        "operationId": "getAllAuthors",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Users"
+              }
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logging in users",
+        "description": "Takes username and password as login credentials.",
+        "operationId": "login",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "loginDao",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginDao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Bad Credentials"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logging out users",
+        "description": "takes no parameters",
+        "operationId": "logout",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Bad Credentials"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Registration of new Users",
+        "description": "It creates new user for the application",
+        "operationId": "signup",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "signUpDao",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignUpDao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/file/{id}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Files"
+        ],
+        "summary": "Getting file from file id",
+        "description": "File id is stored in publications. When user want detail description of publication, files can be loaded using file id.",
+        "operationId": "getFile",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "File id from publication is provided here to get related files"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "string",
+              "description": "The string is url to download file"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns all the approved publications",
+        "operationId": "getPublications",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Publication"
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns all the approved publications",
+        "consumes": [
+          "multipart/form-data",
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "files",
+            "type": "file",
+            "required": true,
+            "description": "File id from publication is provided here to get related files"
+          },
+          {
+            "in": "formData",
+            "name": "abstract",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "detail",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "publicationHouse",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "title",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Publication"
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/{id}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns publications by id",
+        "operationId": "getPublicationsById",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Publication"
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/{id}/": {
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns publications by id",
+        "operationId": "deletePublicationsById",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Publication"
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/author": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns publications by id",
+        "operationId": "getPublicationsByAuthor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Publication"
+              }
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/review/author": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns publications to be reviewed by author",
+        "operationId": "getPublicationsTOoReviewByAuthor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Publication"
+              }
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/review/publicationHouse": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "returns publications by id",
+        "operationId": "getPublicationsToReviewByPublicationHouse",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Publication"
+              }
+            }
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/reviewer/{id}": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Assigns reviewer to a publication(only for publication house) ",
+        "operationId": "assignPublicationReviewers",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "authors",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/publications/reviewScore/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Publications"
+        ],
+        "summary": "Assigns reviewer to a publication(only for publication house) ",
+        "operationId": "update review score",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "authors",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "401": {
+            "description": "Not Authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "definitions": {
+    "Users": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "description": "Unique uuid for each user",
+          "example": "298fda03-b259-48c5-bf22-9a5cd538d206"
+        },
+        "username": {
+          "type": "string",
+          "example": "Angry pig"
+        },
+        "password": {
+          "type": "string",
+          "description": "Encoded password for security reasons",
+          "example": "$2a$10$Pj/Cy09pzgoA6y2LXTUe9Obqkd1VeWu5Zm72rz9SvSTDUwo2MPmfK"
+        },
+        "role": {
+          "type": "string",
+          "description": "This should be AUTHOR",
+          "example": "AUTHOR"
+        }
+      }
+    },
+    "LoginDao": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "Angry pig"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "example": "k^78545ijuyu&^67yuh"
+        }
+      }
+    },
+    "SignUpDao": {
+      "type": "object",
+      "properties": {
+        "Username": {
+          "type": "string",
+          "example": "Angry pig"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "description": "Encoded password for security reasons",
+          "example": "k^78545ijuyu&^67yuh"
+        },
+        "role": {
+          "type": "string",
+          "description": "This should be AUTHOR",
+          "example": "AUTHOR"
+        }
+      }
+    },
+    "Publication": {
+      "type": "object",
+      "properties": {
+        "abstract": {
+          "type": "string",
+          "example": "As research performance becomes increasingly important for academic institutions in competition for rankings, student recruitment, and funding, many performance indicators have been developed to measure various aspects of research performance. ResearchGate combines bibliometrics and altmetrics to create a more comprehensive performance measure for researchers and institutions. The ResearchGate score, the flagship indicator calculated by an undisclosed algorithm, is a metric that measure scientific reputation. In this research, ResearchGate metrics are firstly compared with those that Research Excellence Framework (REF) and Quacquarelli Symonds (QS) World University Rankings to assess the quality of UK universities and global universities respectively. This study then utilizes correlation analysis to examine whether ResearchGate metrics demonstrate effectiveness on the researcher level in comparison with SciVal metrics."
+        },
+        "approved": {
+          "type": "boolean",
+          "example": false
+        },
+        "authorId": {
+          "type": "string",
+          "example": "298fda03-b259-48c5-bf22-9a5cd538d206"
+        },
+        "detail": {
+          "type": "string",
+          "example": " In this research, ResearchGate metrics are firstly compared with those that Research Excellence Framework (REF) and Quacquarelli Symonds (QS) World University Rankings to assess the quality of UK universities and global universities respectively. This study then utilizes correlation analysis to examine whether ResearchGate metrics demonstrate effectiveness on the researcher level in comparison with SciVal metrics."
+        },
+        "fileId": {
+          "type": "string",
+          "example": "298fda03-b259-48c5-bf22-9a5cd538d206"
+        },
+        "publicationHouse": {
+          "type": "string",
+          "example": "Springer"
+        },
+        "reviewScore": {
+          "type": "integer",
+          "format": "int64",
+          "example": 3
+        },
+        "title": {
+          "type": "string",
+          "example": "ResearchGate: An effective altmetric indicator for active researchers?"
+        },
+        "uuid": {
+          "type": "string",
+          "description": "Unique uuid for each user",
+          "example": "298fda03-b259-48c5-bf22-9a5cd538d206"
+        }
+      }
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}

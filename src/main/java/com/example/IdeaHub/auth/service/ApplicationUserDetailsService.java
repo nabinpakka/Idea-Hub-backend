@@ -1,7 +1,7 @@
 package com.example.IdeaHub.auth.service;
 
 import com.example.IdeaHub.auth.model.ApplicationUser;
-import com.example.IdeaHub.auth.repo.ApplicationUserRepo;
+import com.example.IdeaHub.auth.model.repo.ApplicationUserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

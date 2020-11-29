@@ -1,4 +1,4 @@
-package com.example.IdeaHub.data.repo;
+package com.example.IdeaHub.data.model.repo;
 
 import com.example.IdeaHub.data.model.Publication;
 import org.junit.jupiter.api.Test;

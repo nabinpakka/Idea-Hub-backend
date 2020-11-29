@@ -2,11 +2,9 @@ package com.example.IdeaHub.auth.service;
 
 import com.example.IdeaHub.auth.model.ApplicationUser;
 import com.example.IdeaHub.auth.model.LoginDao;
-import com.example.IdeaHub.auth.repo.ApplicationUserRepo;
+import com.example.IdeaHub.auth.model.repo.ApplicationUserRepo;
 import com.example.IdeaHub.config.security.JwtProvider;
 import com.example.IdeaHub.message.ResponseMessage;
-import org.apache.catalina.Authenticator;
-import org.apache.catalina.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-import java.awt.*;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 

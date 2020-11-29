@@ -1,10 +1,41 @@
 package com.example.IdeaHub.message;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ResponseFile {
 
+    @ApiModelProperty(
+            notes = "file name",
+            name = "file name",
+            required = true,
+            example="someFile.pdf"
+    )
     private String name;
+
+
+    @ApiModelProperty(
+            notes = "file name",
+            name = "file name",
+            required = true,
+            example="someFile.pdf"
+    )
     private String url;
+
+    @ApiModelProperty(
+            notes = "file name",
+            name = "file name",
+            required = true,
+            example="someFile.pdf"
+    )
     private String type;
+
+
+    @ApiModelProperty(
+            notes = "file name",
+            name = "file name",
+            required = true,
+            example="someFile.pdf"
+    )
     private long size;
 
     public ResponseFile(String name, String url, String type, long size) {
