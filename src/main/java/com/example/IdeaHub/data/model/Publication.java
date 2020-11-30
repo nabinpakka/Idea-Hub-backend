@@ -44,6 +44,16 @@ public class Publication {
     @JsonProperty("title")
     private String title;
 
+    @Column(name ="publicationType",columnDefinition = "VARCHAR(128)")
+    @ApiModelProperty(
+            notes = "Title of the publication",
+            name = "publicationType",
+            required = true,
+            example="Science/Art"
+    )
+    @JsonProperty("publicationType")
+    private String publicationType;
+
     //abstract is keywords hence abs
     @Lob
     @Column(name = "abstract",columnDefinition = "TEXT(500)")
@@ -120,8 +130,11 @@ public class Publication {
                        String abst,
                        String detail,
                        String publicationHouse,
-                       String fileId) {
+                       String fileId,
+                       String publicationType
+                       ) {
         this.title = title;
+        this.publicationType = publicationType;
         this.abst = abst;
         this.detail = detail;
         this.reviewScore = 0;
@@ -135,6 +148,22 @@ public class Publication {
 
     }
 
+
+    public String getPublicationType() {
+        return publicationType;
+    }
+
+    public void setPublicationType(String publicationType) {
+        this.publicationType = publicationType;
+    }
+
+    public String getAbst() {
+        return abst;
+    }
+
+    public void setAbst(String abst) {
+        this.abst = abst;
+    }
 
     public String getUuid() {
         return uuid;
@@ -166,14 +195,6 @@ public class Publication {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getAbs() {
-        return abst;
-    }
-
-    public void setAbs(String abs) {
-        this.abst = abs;
     }
 
     public String getDetail() {
@@ -212,7 +233,7 @@ public class Publication {
     public String toString() {
         return "Publication{" +
                 "title='" + title + '\'' +
-                ", abs='" + abst + '\'' +
+                ", abst='" + abst + '\'' +
                 ", detail='" + detail + '\'' +
                 ", reviewScore=" + reviewScore +
                 ", publishHouse='" + publicationHouse + '\'' +

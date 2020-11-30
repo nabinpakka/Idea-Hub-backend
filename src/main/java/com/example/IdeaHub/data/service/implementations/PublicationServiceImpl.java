@@ -10,6 +10,7 @@ import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.model.repo.PublicationRepo;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,18 +53,29 @@ public class PublicationServiceImpl implements PublicationService {
     public ResponseEntity<ResponseMessage> uploadPublication(Publication publication){
 
         try{
-            String message= "Upload Successful";
-            String currentUserId = this.getCurrentApplicationUserId();
 
-            if (currentUserId == null){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));
+            //check if publication with same title exists
+            Publication publicationExistsCheck= publicationRepo.findByTitle(publication.getTitle());
+
+            if(publicationExistsCheck != null){
+                System.out.println("null");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage("Publication with title already exists!"));
             }
-            publication.setAuthorId(currentUserId);
-            publicationRepo.save(publication);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+           else{
+                String message= "Upload Successful";
+                String currentUserId = this.getCurrentApplicationUserId();
 
+                if (currentUserId == null){
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(message));
+                }
+                publication.setAuthorId(currentUserId);
 
-        } catch (Exception e) {
+                publicationRepo.save(publication);
+                return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+
+            }
+        }
+        catch (Exception e) {
             e.printStackTrace();
             String message= "Upload Failed";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseMessage(message));

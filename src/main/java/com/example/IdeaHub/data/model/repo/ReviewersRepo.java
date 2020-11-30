@@ -11,5 +11,5 @@ public interface ReviewersRepo extends JpaRepository<Reviewers,String > {
 
     List<Reviewers> findAllByAuthorId(String authorId);
 
-    void deleteReviewersByAuthorIdAndAndPublicationId(String authorId, String publicationId);
+    Integer deleteReviewersByAuthorIdAndAndPublicationId(String authorId, String publicationId);
 }

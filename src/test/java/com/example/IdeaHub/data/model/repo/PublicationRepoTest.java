@@ -20,10 +20,11 @@ public class PublicationRepoTest {
     private PublicationRepo publicationRepo;
 
     private Publication populateDatabase(){
-        Publication publication = new Publication("title1","alkdjlafl","laksdjflkajlk","pakka","fileIds");
+        Publication publication = new Publication("title1","alkdjlafl","laksdjflkajlk","pakka","fileIds","science");
         publication.setAuthorId("lkkkj-jjhjhk-5i85");
         publication.setReviewScore(2);
         publication.setFileId("jk-jk55nm-jknknk");
+        publication.setPublicationType("Genre");
 
         publicationRepo.save(publication);
         return publication;
@@ -70,7 +71,21 @@ public class PublicationRepoTest {
         assertThat(publications.getUuid()).isEqualTo(publication.getUuid());
     }
 
-//    //@Query(nativeQuery = true,value="select * from publication p where exists ( select pr.publication_uuid from publication_reviewers pr where pr.publication_uuid=p.uuid and pr.reviewers=?1)")
-//    Publication findByUuid(String publicationId);
+    @Test
+    void findALlByPublicationHouse(){
+        Publication publication = populateDatabase();
+        List<Publication> publications = publicationRepo.findAllByPublicationHouse(publication.getPublicationHouse());
 
+        assertThat(publications).isNotNull();
+        assertThat(publications.get(0).getPublicationHouse()).isEqualTo(publication.getPublicationHouse());
+    }
+
+    @Test
+    void findByTitle(){
+        Publication publication = populateDatabase();
+        Publication publications = publicationRepo.findByTitle(publication.getTitle());
+
+        assertThat(publications).isNotNull();
+        assertThat(publications.getPublicationHouse()).isEqualTo(publication.getPublicationHouse());
+    }
 }

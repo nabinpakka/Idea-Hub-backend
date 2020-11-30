@@ -2,6 +2,7 @@ package com.example.IdeaHub.data.model.repo;
 
 
 import com.example.IdeaHub.data.model.Reviewers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class ReviewerRepoTest {
     @Autowired
     private ReviewersRepo reviewersRepo;
 
-    private Reviewers populateDatabase(){
+    Reviewers populateDatabase(){
         Reviewers reviewers= new Reviewers("alakdlf-asldfja8ao89afdl-aldfaj","alks-5afd55a5ad-kja");
         reviewersRepo.save(reviewers);
 
@@ -33,5 +34,12 @@ public class ReviewerRepoTest {
 
         assertThat(reviewersList).isNotNull();
         assertThat(reviewersList.get(0).getAuthorId()).isEqualTo(reviewers.getAuthorId());
+    }
+
+    @Test
+    void deleteReviewerByAuthorIdAndPublicationId(){
+        Reviewers reviewers = populateDatabase();
+        Integer deleted= reviewersRepo.deleteReviewersByAuthorIdAndAndPublicationId(reviewers.getAuthorId(),reviewers.getPublicationId());
+        assertThat(deleted).isNotNull();
     }
 }

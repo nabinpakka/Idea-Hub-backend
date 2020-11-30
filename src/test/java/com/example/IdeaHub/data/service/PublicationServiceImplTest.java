@@ -72,22 +72,14 @@ public class PublicationServiceImplTest {
 
 
     @Test
-    void upload(){
+    void uploadPublication(){
         this.configSecurityContext();
-
+        Publication publication = mock(Publication.class);
+        when(publicationRepo.findByTitle(publication.getTitle())).thenReturn(null);
         when(publicationService.getCurrentApplicationUserId()).thenReturn(id);
         ResponseEntity<ResponseMessage> response = publicationService.uploadPublication(publication);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
-
-//    @Test
-//    void deletePublication(){
-//        when(publicationService.getPublication(id)).thenReturn(Optional.of(publication));
-////        doReturn(1).when(fileStorageService.deleteFile(id));
-//////        when(fileStorageService.deleteFile(id)).thenReturn(1);
-//        ResponseEntity<ResponseMessage> response = publicationService.deletePublication(id);
-//        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-//    }
 
 
     @Test

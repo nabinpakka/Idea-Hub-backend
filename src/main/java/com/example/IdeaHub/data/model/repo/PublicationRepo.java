@@ -18,4 +18,6 @@ public interface PublicationRepo extends JpaRepository<Publication, String> {
 
     //@Query(nativeQuery = true,value="select * from publication p where exists ( select pr.publication_uuid from publication_reviewers pr where pr.publication_uuid=p.uuid and pr.reviewers=?1)")
     Publication findByUuid(String publicationId);
+
+    Publication findByTitle(String title);
 }

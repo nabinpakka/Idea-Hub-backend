@@ -45,20 +45,20 @@ public class PublicationController {
                                                              @RequestPart("title") String title,
                                                              @RequestPart("abst") String abst,
                                                              @RequestPart("detail") String detail,
-                                                             @RequestPart("publicationHouse") String publicationHouse
+                                                             @RequestPart("publicationHouse") String publicationHouse,
+                                                             @RequestPart("publicationType") String publicationType
                                                       ) {
         String message ;
         try{
 
             String fileId = publicationService.storeFile(file);
             Publication publication = new Publication(
-                    title,abst,detail,publicationHouse,fileId
+                    title,abst,detail,publicationHouse,fileId,publicationType
             );
 
             //saving publication
-            publicationService.uploadPublication(publication);
-            message = "Uploaded Successfully";
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            return publicationService.uploadPublication(publication);
+
         } catch (IOException e) {
             e.printStackTrace();
             message = "Could not upload the file: " ;
@@ -83,7 +83,7 @@ public class PublicationController {
     }
 
     //getting publication by publicationHouse id and submitted to it
-    @ApiOperation(value = "returns publication by author id",response = Iterable.class)
+    @ApiOperation(value = "returns publication by publication house",response = Iterable.class)
     @GetMapping ("/publicationHouse")
     @PreAuthorize("hasRole('ROLE_PUBLICATION_HOUSE')")
     public ResponseEntity<List<Publication>>  getPublicationHousePublications(){
@@ -143,7 +143,7 @@ public class PublicationController {
     @PutMapping("/reviewer/{id}")
     @ApiOperation(value = "assigns reviewers to publication by id",response = Iterable.class)
     @PreAuthorize("hasRole('ROLE_PUBLICATION_HOUSE')")
-    public ResponseEntity<ResponseMessage> assignReviewers(@PathVariable String id ,@RequestParam List<String>reviewers){
+    public ResponseEntity<ResponseMessage> assignReviewers(@PathVariable String id ,@RequestBody List<String>reviewers){
         return publicationService.assignReviewers(id,reviewers);
     }
 }   

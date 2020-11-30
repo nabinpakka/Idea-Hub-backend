@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -97,6 +99,26 @@ public class AuthServiceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().get(0)).isInstanceOf(ApplicationUser.class);
         assertThat(response.getBody().get(0).getRole()).isEqualTo("AUTHOR");
+
+    }
+
+    @Test
+    public void getCurrentApplicationUser(){
+        ApplicationUser applicationUser = mock(ApplicationUser.class);
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        ApplicationUserDetails applicationUserDetails = mock(ApplicationUserDetails.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(applicationUserDetails);
+        when(applicationUserDetails.getApplicationUser()).thenReturn(applicationUser);
+
+        ResponseEntity<ApplicationUser> response= authService.getCurrentApplicationUser();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isInstanceOf(ApplicationUser.class);
+
+
 
     }
 }
