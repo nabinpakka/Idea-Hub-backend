@@ -10,11 +10,13 @@ import com.example.IdeaHub.data.model.Publication;
 import com.example.IdeaHub.data.model.repo.PublicationRepo;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +34,8 @@ public class PublicationServiceImpl implements PublicationService {
     private final ReviewersRepo reviewersRepo;
 
     private final PublicationRepo publicationRepo;
+
+    private UserDetailsService userDetailsService;
 
     @Autowired
     public PublicationServiceImpl(FileStorageService fileStorageService, ReviewersRepo reviewersRepo, PublicationRepo publicationRepo) {

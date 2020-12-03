@@ -30,7 +30,7 @@ public class FileController {
 
     }
 
-    @ApiOperation(value = "returns file download link of given id",response = String.class)
+    @ApiOperation(value = "returns file",response = String.class)
     @ApiResponse(code=200,message = "file loaded")
     @GetMapping("/download/{id}")
     public ResponseEntity<byte[]> getFile(@PathVariable String id){

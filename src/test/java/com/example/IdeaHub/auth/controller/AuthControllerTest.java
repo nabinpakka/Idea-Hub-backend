@@ -7,6 +7,7 @@ import com.example.IdeaHub.message.ResponseMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +36,9 @@ public class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
+
+    @InjectMocks
+    private AuthController authController;
 
     @Test
     public void login() throws Exception {

@@ -26,7 +26,7 @@ public class ApplicationUser {
             required = true,
             example= "Angry pig"
     )
-    @Column(name = "username", unique = true, columnDefinition = "VARCHAR(128)")
+    @Column(name = "username", columnDefinition = "VARCHAR(128)")
     private String username;
 
     @ApiModelProperty(

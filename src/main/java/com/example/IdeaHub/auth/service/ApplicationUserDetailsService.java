@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @Service("applicationUserDetailsService")
 public class ApplicationUserDetailsService implements UserDetailsService {
 
-    private final ApplicationUserRepo applicationUserRepo;
+    @Autowired
+    private ApplicationUserRepo applicationUserRepo;
 
     @Autowired
-    public ApplicationUserDetailsService(ApplicationUserRepo applicationUserRepo) {
-        this.applicationUserRepo = applicationUserRepo;
+    public ApplicationUserDetailsService() {
     }
 
     @Override
